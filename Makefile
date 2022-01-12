@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-std=c++17 -Wall -Wextra -O3
-LDFLAGS=-ltbb 
+LDFLAGS=-ltbb
 
 SRCS=${wildcard src/*.cpp}
 OBJS=${patsubst src/%.cpp, build/%.o, ${SRCS}}
