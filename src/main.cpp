@@ -7,6 +7,21 @@
 
 using namespace std;
 
+bool read_data(const string& filename, vector<string>& data) {
+    fstream file(filename, ios::in);
+
+    if (!file.is_open()) return false;
+
+    string word;
+
+    while (getline(file, word))
+        data.push_back(word);
+
+    file.close();
+
+    return true;
+}
+
 string wordle(const string& word, const string& guess) {
     string result(5, '?');
 
@@ -28,8 +43,8 @@ string wordle(const string& word, const string& guess) {
     return result;
 }
 
-bool is_possible_word(const string& word, const string& guess,
-                      const string& result) {
+bool is_possible_word(
+    const string& word, const string& guess, const string& result) {
     for (int i = 0; i < 5; ++i) {
         char ch = guess[i];
         if (result[i] == 'g') {
@@ -43,9 +58,9 @@ bool is_possible_word(const string& word, const string& guess,
                 if (word[j] == ch) ++cnt;
             }
             if (result[i] == 'y') {
-                if (!(cnt >= mc)) return false;
+                if (cnt < mc) return false;
             } else if (result[i] == 'b') {
-                if (!(cnt <= mc)) return false;
+                if (cnt > mc) return false;
             }
         }
     }
@@ -56,45 +71,23 @@ int main(int argc, char* argv[]) {
     bool verbose = false;
     for (int i = 1; i < argc; ++i) {
         string arg(argv[i]);
-        if (arg == "-v") {
-            verbose = true;
-        }
+        if (arg == "-v") verbose = true;
     }
 
     vector<string> solutions, nonsolutions;
-
-    fstream file;
-    file.open("./data/solutions.txt", ios::in);
-    if (file.is_open()) {
-        string word;
-        while (getline(file, word)) {
-            solutions.push_back(word);
-        }
-        file.close();
-    }
-    file.open("./data/nonsolutions.txt", ios::in);
-    if (file.is_open()) {
-        string word;
-        while (getline(file, word)) {
-            nonsolutions.push_back(word);
-        }
-        file.close();
+    if (!(read_data("./data/solutions.txt", solutions) &&
+            read_data("./data/nonsolutions.txt", nonsolutions))) {
+        cerr << "Unable to read file" << endl;
+        return 1;
     }
 
     vector<string> words(solutions.begin(), solutions.end());
-    vector<pair<int, string>> wordles;
-    for (auto& word : solutions) {
-        int i = wordles.size();
-        wordles.emplace_back(i, word);
-    }
-    for (auto& word : nonsolutions) {
-        int i = wordles.size();
-        wordles.emplace_back(i, word);
-    }
+    vector<string> wordles(solutions.begin(), solutions.end());
+    wordles.insert(wordles.end(), nonsolutions.begin(), nonsolutions.end());
 
     for (int t = 0;; ++t) {
         if (words.empty()) {
-            cerr << "no solutions" << endl;
+            cerr << "No solutions possible" << endl;
             return 1;
         }
         if (words.size() == 1) {
@@ -106,20 +99,21 @@ int main(int argc, char* argv[]) {
 
         string best = "roate";
         if (t > 0) {
-            for_each(
-                execution::par_unseq, wordles.begin(), wordles.end(),
-                [&](const auto& param) {
-                    const auto& [i, word] = param;
+            transform(execution::par_unseq, wordles.begin(), wordles.end(),
+                score.begin(), [&](const string& word) {
+                    int s = 0;
                     for (auto& target : words) {
-                        for (auto& w : words) {
-                            if (is_possible_word(w, word, wordle(target, word)))
-                                score[i]++;
-                        }
+                        s += count_if(
+                            words.begin(), words.end(), [&](const string& w) {
+                                return is_possible_word(
+                                    w, word, wordle(target, word));
+                            });
                     }
+                    return s;
                 });
             auto it =
                 min_element(execution::par_unseq, score.begin(), score.end());
-            best = wordles[it - score.begin()].second;
+            best = wordles[it - score.begin()];
         }
 
         cout << best << endl;
@@ -128,9 +122,9 @@ int main(int argc, char* argv[]) {
         cin >> result;
 
         auto it = remove_if(execution::par_unseq, words.begin(), words.end(),
-                            [&](const string& word) {
-                                return !is_possible_word(word, best, result);
-                            });
+            [&](const string& word) {
+                return !is_possible_word(word, best, result);
+            });
         words.erase(it, words.end());
 
         if (verbose) {
