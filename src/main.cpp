@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     vector<string> solutions, nonsolutions;
 
     fstream file;
-    file.open("solutions.txt", ios::in);
+    file.open("./data/solutions.txt", ios::in);
     if (file.is_open()) {
         string word;
         while (getline(file, word)) {
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         }
         file.close();
     }
-    file.open("nonsolutions.txt", ios::in);
+    file.open("./data/nonsolutions.txt", ios::in);
     if (file.is_open()) {
         string word;
         while (getline(file, word)) {

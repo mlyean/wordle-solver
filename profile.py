@@ -18,7 +18,7 @@ def wordle(word, guess):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        with open("solutions.txt", 'r') as f:
+        with open("./data/solutions.txt", 'r') as f:
             solutions = list(map(str.strip, f.readlines()))
 
         shuffle(solutions)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         mx = 0
         for word in solutions:
             attempts = 0
-            with Popen(["./main"], stdin=PIPE, stdout=PIPE, text=True) as proc:
+            with Popen(["./bin/main"], stdin=PIPE, stdout=PIPE, text=True) as proc:
                 while True:
                     attempts += 1
                     guess = proc.stdout.readline().strip()
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 sys.stdout.flush()
     else:
         word = sys.argv[1]
-        with Popen(["./main", "-v"], stdin=PIPE, stdout=PIPE, stderr=sys.stderr, text=True) as proc:
+        with Popen(["./bin/main", "-v"], stdin=PIPE, stdout=PIPE, stderr=sys.stderr, text=True) as proc:
             attempts = 0
             while True:
                 attempts += 1
