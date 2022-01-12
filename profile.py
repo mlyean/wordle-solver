@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 sys.stdout.flush()
     else:
         word = sys.argv[1]
-        with Popen(["./main"], stdin=PIPE, stdout=PIPE, text=True) as proc:
+        with Popen(["./main", "-v"], stdin=PIPE, stdout=PIPE, stderr=sys.stderr, text=True) as proc:
             attempts = 0
             while True:
                 attempts += 1
@@ -62,7 +62,6 @@ if __name__ == "__main__":
 
                 result = wordle(word, guess)
                 print(f"Result: {result}")
-                print()
 
                 proc.stdin.write(result)
                 proc.stdin.write('\n')

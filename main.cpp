@@ -52,7 +52,15 @@ bool is_possible_word(const string& word, const string& guess,
     return true;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    bool verbose = false;
+    for (int i = 1; i < argc; ++i) {
+        string arg(argv[i]);
+        if (arg == "-v") {
+            verbose = true;
+        }
+    }
+
     vector<string> solutions, nonsolutions;
 
     fstream file;
@@ -86,7 +94,7 @@ int main() {
 
     for (int t = 0;; ++t) {
         if (words.empty()) {
-            cout << "No solutions" << endl;
+            cerr << "no solutions" << endl;
             return 1;
         }
         if (words.size() == 1) {
@@ -124,6 +132,12 @@ int main() {
                                 return !is_possible_word(word, best, result);
                             });
         words.erase(it, words.end());
+
+        if (verbose) {
+            cerr << words.size() << " word";
+            if (words.size() != 1) cerr << "s";
+            cerr << " remaining" << endl;
+        }
     }
 
     return 0;
