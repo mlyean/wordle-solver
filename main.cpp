@@ -1,9 +1,9 @@
+#include <algorithm>
+#include <execution>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <execution>
 
 using namespace std;
 
@@ -32,11 +32,11 @@ bool is_possible_word(const string& word, const string& guess,
                       const string& result) {
     for (int i = 0; i < 5; ++i) {
         char ch = guess[i];
-        int mc = 0, cnt = 0;
         if (result[i] == 'g') {
             if (word[i] != ch) return false;
         } else {
             if (word[i] == ch) return false;
+            int mc = 0, cnt = 0;
             for (int j = 0; j < 5; ++j) {
                 if (guess[j] == ch && (result[j] == 'g' || result[j] == 'y'))
                     mc++;
@@ -94,25 +94,24 @@ int main() {
             return 0;
         }
 
-        vector<double> score(wordles.size());
+        vector<int> score(wordles.size());
 
         string best = "roate";
         if (t > 0) {
-            for_each(execution::par_unseq, wordles.begin(), wordles.end(), [&](const auto& param){
-                const auto& [i, word] = param;
-                for (auto& target : words) {
-                    for (auto& w : words) {
-                        if (is_possible_word(w, word, wordle(target, word))) score[i]++;
+            for_each(
+                execution::par_unseq, wordles.begin(), wordles.end(),
+                [&](const auto& param) {
+                    const auto& [i, word] = param;
+                    for (auto& target : words) {
+                        for (auto& w : words) {
+                            if (is_possible_word(w, word, wordle(target, word)))
+                                score[i]++;
+                        }
                     }
-                }
-            });
-            double best_score = words.size() * words.size();
-            for (auto& [i, word] : wordles) {
-                if (score[i] < best_score) {
-                    best = word;
-                    best_score = score[i];
-                }
-            }
+                });
+            auto it =
+                min_element(execution::par_unseq, score.begin(), score.end());
+            best = wordles[it - score.begin()].second;
         }
 
         cout << best << endl;
@@ -120,11 +119,11 @@ int main() {
         string result;
         cin >> result;
 
-        vector<string> words_new;
-        for (auto& word : words) {
-            if (is_possible_word(word, best, result)) words_new.push_back(word);
-        }
-        words = words_new;
+        auto it = remove_if(execution::par_unseq, words.begin(), words.end(),
+                            [&](const string& word) {
+                                return !is_possible_word(word, best, result);
+                            });
+        words.erase(it, words.end());
     }
 
     return 0;
