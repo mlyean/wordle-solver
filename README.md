@@ -26,3 +26,11 @@ To test the program on a word of your choice, run
 ./profile.py <word>
 ```
 where `<word>` is replaced by a valid word.
+
+## Statistics
+
+`./profile.py` yields the following output:
+```
+N = 2315, μ = 3.65486, σ = 0.55906, max = 5
+```
+This demonstrates that at most 5 attempts are needed for each valid word.
