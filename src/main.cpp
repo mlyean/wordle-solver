@@ -98,10 +98,10 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 
-        vector<int> score(wordles.size());
-
         string best = "roate";
         if (t > 0) {
+            vector<int> score(wordles.size());
+
             transform(execution::par_unseq, wordles.begin(), wordles.end(),
                 score.begin(), [&](const string& word) {
                     int s = 0;
