@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++17 -Wall -Wextra -O3
+CXXFLAGS=-std=c++17 -Wall -Wextra -Ofast -march=native
 LDFLAGS=-ltbb
 
 SRCS=${wildcard src/*.cpp}

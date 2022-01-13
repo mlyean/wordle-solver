@@ -25,18 +25,19 @@ bool read_data(const string& filename, vector<string>& data) {
 string wordle(const string& word, const string& guess) {
     string result(5, '?');
 
+    array<int, 26> cnt {};
+    for (int i = 0; i < 5; ++i) {
+        if (guess[i] != word[i]) cnt[word[i] - 'a']++;
+    }
+
     for (int i = 0; i < 5; ++i) {
         if (guess[i] == word[i]) {
             result[i] = 'g';
+        } else if (cnt[guess[i] - 'a'] > 0) {
+            result[i] = 'y';
+            cnt[guess[i] - 'a']--;
         } else {
-            int match = 0, perm = 0, total = 0;
-            for (int j = 0; j < 5; ++j) {
-                if (guess[i] == guess[j] && word[j] == guess[j]) match++;
-                if (word[j] == guess[i]) total++;
-                if (j < i && guess[i] == guess[j] && word[j] != guess[j])
-                    perm++;
-            }
-            result[i] = (match + perm < total) ? 'y' : 'b';
+            result[i] = 'b';
         }
     }
 
@@ -45,24 +46,28 @@ string wordle(const string& word, const string& guess) {
 
 bool is_possible_word(
     const string& word, const string& guess, const string& result) {
+
+    array<int, 26> cnt {};
+    array<bool, 26> has_b {};
     for (int i = 0; i < 5; ++i) {
         char ch = guess[i];
         if (result[i] == 'g') {
             if (word[i] != ch) return false;
         } else {
             if (word[i] == ch) return false;
-            int mc = 0, cnt = 0;
-            for (int j = 0; j < 5; ++j) {
-                if (guess[j] == ch && (result[j] == 'g' || result[j] == 'y'))
-                    mc++;
-                if (word[j] == ch) ++cnt;
-            }
+            cnt[word[i] - 'a']--;
             if (result[i] == 'y') {
-                if (cnt < mc) return false;
+                cnt[ch - 'a']++;
             } else if (result[i] == 'b') {
-                if (cnt > mc) return false;
+                has_b[ch - 'a'] = true;
             }
         }
+    }
+
+    for (int i = 0; i < 5; ++i) {
+        char ch = guess[i];
+        if (cnt[ch - 'a'] > 0) return false;
+        if (has_b[ch - 'a'] && cnt[ch - 'a'] != 0) return false;
     }
     return true;
 }
@@ -74,16 +79,14 @@ int main(int argc, char* argv[]) {
         if (arg == "-v") verbose = true;
     }
 
-    vector<string> solutions, nonsolutions;
-    if (!(read_data("./data/solutions.txt", solutions) &&
-            read_data("./data/nonsolutions.txt", nonsolutions))) {
+    vector<string> words, wordles;
+    if (!(read_data("./data/solutions.txt", words) &&
+            read_data("./data/nonsolutions.txt", wordles))) {
         cerr << "Unable to read file" << endl;
         return 1;
     }
 
-    vector<string> words(solutions.begin(), solutions.end());
-    vector<string> wordles(solutions.begin(), solutions.end());
-    wordles.insert(wordles.end(), nonsolutions.begin(), nonsolutions.end());
+    wordles.insert(wordles.end(), words.begin(), words.end());
 
     for (int t = 0;; ++t) {
         if (words.empty()) {
@@ -102,7 +105,7 @@ int main(int argc, char* argv[]) {
             transform(execution::par_unseq, wordles.begin(), wordles.end(),
                 score.begin(), [&](const string& word) {
                     int s = 0;
-                    for (auto& target : words) {
+                    for (const string& target : words) {
                         s += count_if(
                             words.begin(), words.end(), [&](const string& w) {
                                 return is_possible_word(
