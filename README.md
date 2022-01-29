@@ -22,8 +22,6 @@ This is then repeated until the answer is obtained.
 
 To print the number of possibilities remaining, pass the `-v` flag.
 
-**Note:** The directory in which you run the program must contain `data/`. The list of valid answers are in `solutions.txt`, the other words are located in `nonsolutions.txt`.
-
 To test the program on a word of your choice, run
 ```
 ./profile.py <word>
