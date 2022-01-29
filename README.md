@@ -28,11 +28,35 @@ To test the program on a word of your choice, run
 ```
 where `<word>` is replaced by a valid word.
 
+### Example
+
+An example session solved in 3 guesses:
+```
+$ ./bin/main -v
+2315 words remaining: aback abase abate abbey abbot ...
+roate
+bgbbb
+71 words remaining: bobby bongo bonus booby boozy ...
+bludy
+bygyb
+2 words remaining: could would
+could
+ggggg
+could
+```
+
 ## Statistics
 
-`./profile.py` yields the following output:
-```
-N = 2315, μ = 3.48164, σ = 0.57609, max = 5
-1: 0, 2: 55, 3: 1130, 4: 1090, 5: 40, 6: 0, fail: 0
-```
-This demonstrates that at most 5 attempts are needed for each valid word.
+`./profile.py` yields the following results:
+
+| Attempts | Number of words |
+| --------:| ---------------:|
+| 1        | 0               |
+| 2        | 55              |
+| 3        | 1130            |
+| 4        | 1090            |
+| 5        | 40              |
+
+Mean, `μ = 3.48164`
+
+Standard deviation, `σ = 0.57609`
