@@ -112,6 +112,18 @@ int main(int argc, char* argv[]) {
         } else if (possible.size() == 1) {
             cout << possible[0] << endl;
             return 0;
+        } else if (verbose) {
+            cerr << possible.size() << " word";
+            if (possible.size() != 1) cerr << "s";
+            cerr << " remaining:";
+            for (int i = 0; i < (int)possible.size(); ++i) {
+                if (i >= 5) break;
+                cerr << ' ' << possible[i];
+            }
+            if (possible.size() > 5) {
+                cerr << " ...";
+            }
+            cerr << endl;
         }
 
         vector<int> score(guessable.size());
@@ -145,20 +157,6 @@ int main(int argc, char* argv[]) {
                 return !is_possible_word(word, best, result);
             });
         possible.erase(it2, possible.end());
-
-        if (verbose) {
-            cerr << possible.size() << " word";
-            if (possible.size() != 1) cerr << "s";
-            cerr << " remaining:";
-            for (int i = 0; i < (int)possible.size(); ++i) {
-                if (i >= 5) break;
-                cerr << ' ' << possible[i];
-            }
-            if (possible.size() > 5) {
-                cerr << " ...";
-            }
-            cerr << endl;
-        }
     }
 
     return 0;
