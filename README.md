@@ -1,8 +1,10 @@
 # Wordle Solver
 
+A bot / solver for the game [Wordle](https://www.powerlanguage.co.uk/wordle/). The solver's strategy is to make guesses which on average narrow down the number of possibilities at much as possible.
+
 ## Compiling
 
-Simply run `make` to compile.
+Run `make` to compile.
 
 ## Usage
 
@@ -51,12 +53,11 @@ could
 
 | Attempts | Number of words |
 | --------:| ---------------:|
-| 1        | 0               |
 | 2        | 55              |
 | 3        | 1130            |
 | 4        | 1090            |
 | 5        | 40              |
 
-Mean, `μ = 3.48164`
+Mean, `μ = 3.48164`.
 
-Standard deviation, `σ = 0.57609`
+Standard deviation, `σ = 0.57609`.
