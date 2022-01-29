@@ -18,7 +18,7 @@ def wordle(word, guess):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        with open("./data/solutions.txt", 'r') as f:
+        with open("./data/wordle_possible.txt", 'r') as f:
             solutions = list(map(str.strip, f.readlines()))
 
         shuffle(solutions)
