@@ -11,6 +11,7 @@ bool is_possible_word(const char* word, const char* guess, int result);
 
 struct Solver {
 
+    int word_len, word_len3;
     std::vector<const char*> possible, guessable;
 
     Solver(
