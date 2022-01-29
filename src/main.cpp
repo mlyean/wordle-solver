@@ -94,14 +94,16 @@ int main(int argc, char* argv[]) {
         if (arg == "-v") verbose = true;
     }
 
-    vector<string> possible, guessable;
-    if (!(read_data("./data/solutions.txt", possible) &&
-            read_data("./data/nonsolutions.txt", guessable))) {
+    vector<string> possible;
+    if (!read_data("./data/solutions.txt", possible)) {
         cerr << "Unable to read file" << endl;
         return 1;
     }
-
-    guessable.insert(guessable.end(), possible.begin(), possible.end());
+    vector<string> guessable(possible.begin(), possible.end());
+    if (!read_data("./data/nonsolutions.txt", guessable)) {
+        cerr << "Unable to read file" << endl;
+        return 1;
+    }
 
     for (int t = 0;; ++t) {
         if (possible.empty()) {
@@ -116,7 +118,7 @@ int main(int argc, char* argv[]) {
 
         transform(execution::par_unseq, guessable.begin(), guessable.end(),
             score.begin(), [&](const string& guess) {
-                vector<int> cnt(243);
+                array<int, 243> cnt{};
                 for (const string& target : possible) {
                     cnt[wordle(target, guess)]++;
                 }
@@ -132,12 +134,15 @@ int main(int argc, char* argv[]) {
 
         cout << best << endl;
 
-        string result;
-        cin >> result;
+        int result = []{
+            string tmp;
+            cin >> tmp;
+            return result_to_int(tmp);
+        }();
 
         auto it2 = remove_if(execution::par_unseq, possible.begin(),
             possible.end(), [&](const string& word) {
-                return !is_possible_word(word, best, result_to_int(result));
+                return !is_possible_word(word, best, result);
             });
         possible.erase(it2, possible.end());
 

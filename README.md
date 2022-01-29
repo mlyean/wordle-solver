@@ -32,7 +32,7 @@ where `<word>` is replaced by a valid word.
 
 `./profile.py` yields the following output:
 ```
-N = 2315, μ = 3.65659, σ = 0.55470, max = 5
-1: 0, 2: 26, 3: 812, 4: 1408, 5: 69, 6: 0, fail: 0
+N = 2315, μ = 3.65486, σ = 0.55906, max = 5
+1: 0, 2: 29, 3: 812, 4: 1403, 5: 71, 6: 0, fail: 0
 ```
 This demonstrates that at most 5 attempts are needed for each valid word.
