@@ -123,8 +123,8 @@ int main(int argc, char* argv[]) {
                     cnt[wordle(target, guess)]++;
                 }
                 int s = 0;
-                for (int i : cnt) {
-                    s += i * i;
+                for (int i = 0; i < 242; ++i) {
+                    s += cnt[i] * cnt[i];
                 }
                 return s;
             });
