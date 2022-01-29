@@ -22,46 +22,61 @@ bool read_data(const string& filename, vector<string>& data) {
     return true;
 }
 
-string wordle(const string& word, const string& guess) {
-    string result(5, '?');
+int wordle(const string& word, const string& guess) {
+    int result = 0;
 
-    array<int, 26> cnt {};
+    array<int, 26> cnt{};
     for (int i = 0; i < 5; ++i) {
         if (guess[i] != word[i]) cnt[word[i] - 'a']++;
     }
 
+    int b = 1;
     for (int i = 0; i < 5; ++i) {
         if (guess[i] == word[i]) {
-            result[i] = 'g';
+            result += 2 * b;
         } else if (cnt[guess[i] - 'a'] > 0) {
-            result[i] = 'y';
             cnt[guess[i] - 'a']--;
-        } else {
-            result[i] = 'b';
+            result += b;
         }
+        b *= 3;
     }
 
     return result;
 }
 
-bool is_possible_word(
-    const string& word, const string& guess, const string& result) {
+int result_to_int(const string& result) {
+    int ans = 0;
+    int b = 1;
 
-    array<int, 26> cnt {};
-    array<bool, 26> has_b {};
+    for (char c : result) {
+        if (c == 'g') {
+            ans += 2 * b;
+        } else if (c == 'y') {
+            ans += b;
+        }
+        b *= 3;
+    }
+
+    return ans;
+}
+
+bool is_possible_word(const string& word, const string& guess, int result) {
+    array<int, 26> cnt{};
+    array<bool, 26> has_b{};
     for (int i = 0; i < 5; ++i) {
         char ch = guess[i];
-        if (result[i] == 'g') {
+        if (result % 3 == 2) {
             if (word[i] != ch) return false;
         } else {
             if (word[i] == ch) return false;
             cnt[word[i] - 'a']--;
-            if (result[i] == 'y') {
+            if (result % 3 == 1) {
                 cnt[ch - 'a']++;
-            } else if (result[i] == 'b') {
+            } else if (result % 3 == 0) {
                 has_b[ch - 'a'] = true;
             }
         }
+        result /= 3;
     }
 
     for (int i = 0; i < 5; ++i) {
@@ -79,61 +94,65 @@ int main(int argc, char* argv[]) {
         if (arg == "-v") verbose = true;
     }
 
-    vector<string> words, wordles;
-    if (!(read_data("./data/solutions.txt", words) &&
-            read_data("./data/nonsolutions.txt", wordles))) {
+    vector<string> possible, guessable;
+    if (!(read_data("./data/solutions.txt", possible) &&
+            read_data("./data/nonsolutions.txt", guessable))) {
         cerr << "Unable to read file" << endl;
         return 1;
     }
 
-    wordles.insert(wordles.end(), words.begin(), words.end());
+    guessable.insert(guessable.end(), possible.begin(), possible.end());
 
     for (int t = 0;; ++t) {
-        if (words.empty()) {
+        if (possible.empty()) {
             cerr << "No solutions possible" << endl;
             return 1;
-        }
-        if (words.size() == 1) {
-            cout << words[0] << endl;
+        } else if (possible.size() == 1) {
+            cout << possible[0] << endl;
             return 0;
         }
 
-        string best = "roate";
-        if (t > 0) {
-            vector<int> score(wordles.size());
+        vector<int> score(guessable.size());
 
-            transform(execution::par_unseq, wordles.begin(), wordles.end(),
-                score.begin(), [&](const string& word) {
-                    int s = 0;
-                    for (const string& target : words) {
-                        s += count_if(
-                            words.begin(), words.end(), [&](const string& w) {
-                                return is_possible_word(
-                                    w, word, wordle(target, word));
-                            });
-                    }
-                    return s;
-                });
-            auto it =
-                min_element(execution::par_unseq, score.begin(), score.end());
-            best = wordles[it - score.begin()];
-        }
+        transform(execution::par_unseq, guessable.begin(), guessable.end(),
+            score.begin(), [&](const string& guess) {
+                vector<int> cnt(243);
+                for (const string& target : possible) {
+                    cnt[wordle(target, guess)]++;
+                }
+                int s = 0;
+                for (int i : cnt) {
+                    s += i * i;
+                }
+                return s;
+            });
+        auto it1 =
+            min_element(execution::par_unseq, score.begin(), score.end());
+        string best = guessable[it1 - score.begin()];
 
         cout << best << endl;
 
         string result;
         cin >> result;
 
-        auto it = remove_if(execution::par_unseq, words.begin(), words.end(),
-            [&](const string& word) {
-                return !is_possible_word(word, best, result);
+        auto it2 = remove_if(execution::par_unseq, possible.begin(),
+            possible.end(), [&](const string& word) {
+                return !is_possible_word(word, best, result_to_int(result));
             });
-        words.erase(it, words.end());
+        possible.erase(it2, possible.end());
 
         if (verbose) {
-            cerr << words.size() << " word";
-            if (words.size() != 1) cerr << "s";
-            cerr << " remaining" << endl;
+            cerr << possible.size() << " word";
+            if (possible.size() != 1) cerr << "s";
+            cerr << " remaining:";
+            for (int i = 0; i < (int)possible.size(); ++i) {
+                if (i >= 5) break;
+                cerr << ' ' << possible[i];
+            }
+            if (possible.size() > 5) {
+                cerr << " ...";
+            }
+            cerr << endl;
         }
     }
 
