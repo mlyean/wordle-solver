@@ -1,20 +1,17 @@
+#include <fstream>
 #include <iostream>
 #include <string>
 
+#include "custom_dict.hpp"
 #include "solver.hpp"
 #include "wordle_dict.hpp"
 
 using namespace std;
 using namespace wordle_solver;
 
-int main(int argc, char* argv[]) {
-    bool verbose = false;
-    for (int i = 1; i < argc; ++i) {
-        string arg(argv[i]);
-        if (arg == "-v") verbose = true;
-    }
-
-    Solver solver(wordle_dict::possible, wordle_dict::guessable);
+int loop(bool verbose, const vector<const char*>& possible,
+    const vector<const char*>& guessable) {
+    Solver solver(possible, guessable);
 
     for (int t = 0;; ++t) {
         if (!solver.has_solution()) {
@@ -44,6 +41,31 @@ int main(int argc, char* argv[]) {
         }();
 
         solver.update(guess, result);
+    }
+}
+
+int main(int argc, char* argv[]) {
+    bool verbose = false;
+    bool custom = false;
+    string pfile, gfile;
+    for (int i = 1; i < argc; ++i) {
+        string arg(argv[i]);
+        if (arg == "-v") {
+            verbose = true;
+        } else if (arg.substr(0, 3) == "-p=") {
+            pfile = arg.substr(3);
+            custom = true;
+        } else if (arg.substr(0, 3) == "-g=") {
+            gfile = arg.substr(3);
+            custom = true;
+        }
+    }
+
+    if (custom) {
+        custom_dict::Dict dict(pfile, gfile);
+        loop(verbose, dict.possible, dict.guessable);
+    } else {
+        loop(verbose, wordle_dict::possible, wordle_dict::guessable);
     }
 
     return 0;

@@ -3,7 +3,6 @@
 
 namespace wordle_dict {
 
-extern const std::vector<const char*> guessable;
-extern const std::vector<const char*> possible;
+extern const std::vector<const char*> guessable, possible;
 
 } // namespace wordle_dict
