@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
     bool verbose = false;
     bool custom = false;
     string pfile, gfile;
+    int word_len = 5;
     for (int i = 1; i < argc; ++i) {
         string arg(argv[i]);
         if (arg == "-v") {
@@ -58,15 +59,19 @@ int main(int argc, char* argv[]) {
         } else if (arg.substr(0, 3) == "-g=") {
             gfile = arg.substr(3);
             custom = true;
+        } else if (arg.substr(0, 3) == "-n=") {
+            word_len = stoi(arg.substr(3));
         }
     }
 
     if (custom) {
-        custom_dict::Dict dict(pfile, gfile);
-        loop(verbose, dict.possible, dict.guessable);
-    } else {
-        loop(verbose, wordle_dict::possible, wordle_dict::guessable);
+        try {
+            custom_dict::Dict dict(pfile, gfile, word_len);
+            return loop(verbose, dict.possible, dict.guessable);
+        } catch (string e) {
+            cerr << "Exception: " << e << endl;
+            return 1;
+        }
     }
-
-    return 0;
+    return loop(verbose, wordle_dict::possible, wordle_dict::guessable);
 }
