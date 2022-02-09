@@ -17,16 +17,16 @@ int loop(bool verbose, const vector<const char*>& possible,
         if (!solver.has_solution()) {
             cerr << "No solutions possible" << endl;
             return 1;
-        } else if (solver.possible.size() == 1) {
+        } else if (solver.num_solutions() == 1) {
             cout << solver.possible[0] << endl;
             return 0;
         } else if (verbose) {
-            cerr << solver.possible.size() << " word";
-            if (solver.possible.size() != 1) cerr << "s";
+            cerr << solver.num_solutions() << " word";
+            if (solver.num_solutions() != 1) cerr << "s";
             cerr << " remaining:";
-            for (int i = 0; i < min((int)solver.possible.size(), 5); ++i)
+            for (int i = 0; i < min(solver.num_solutions(), 5); ++i)
                 cerr << ' ' << solver.possible[i];
-            if (solver.possible.size() > 5) cerr << " ...";
+            if (solver.num_solutions() > 5) cerr << " ...";
             cerr << endl;
         }
 

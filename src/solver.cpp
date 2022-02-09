@@ -82,9 +82,8 @@ Solver::Solver(
     word_len = strlen(guessable[0]);
 
     word_len3 = 1;
-    for (int i = 0; i < word_len; ++i) {
+    for (int i = 0; i < word_len; ++i)
         word_len3 *= 3;
-    }
 };
 
 bool Solver::has_solution() { return !possible.empty(); }
@@ -92,22 +91,20 @@ bool Solver::has_solution() { return !possible.empty(); }
 int Solver::num_solutions() { return possible.size(); }
 
 const char* Solver::guess() {
-    if (possible.empty()) {
-        return nullptr;
-    }
+    if (possible.empty()) return nullptr;
 
     std::vector<int> score(guessable.size());
 
     transform(std::execution::par_unseq, guessable.begin(), guessable.end(),
         score.begin(), [&](const char* guess) {
             std::vector<int> cnt(word_len3);
-            for (const char* target : possible) {
+            for (const char* target : possible)
                 cnt[wordle(target, guess)]++;
-            }
+
             int s = 0;
-            for (int i = 0; i < word_len3 - 1; ++i) {
+            for (int i = 0; i < word_len3 - 1; ++i)
                 s += cnt[i] * cnt[i];
-            }
+
             return s;
         });
     auto it =
