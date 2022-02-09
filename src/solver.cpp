@@ -73,10 +73,8 @@ bool is_possible_word(const char* word, const char* guess, int result) {
     return true;
 }
 
-Solver::Solver(const dict::Dict& d) {
-    possible.insert(possible.end(), d.possible.begin(), d.possible.end());
-    guessable.insert(guessable.end(), d.guessable.begin(), d.guessable.end());
-
+Solver::Solver(const dict::Dict& d)
+    : possible(d.possible), guessable(d.guessable) {
     word_len = strlen(guessable[0]);
 
     word_len3 = 1;
@@ -88,23 +86,25 @@ bool Solver::has_solution() { return !possible.empty(); }
 
 int Solver::num_solutions() { return possible.size(); }
 
+int Solver::eval(const char* guess) {
+    std::vector<int> cnt(word_len3);
+    for (const char* target : possible)
+        cnt[wordle(target, guess)]++;
+
+    int s = 0;
+    for (int i = 0; i < word_len3 - 1; ++i)
+        s += cnt[i] * cnt[i];
+
+    return s;
+}
+
 const char* Solver::guess() {
     if (possible.empty()) return nullptr;
 
     std::vector<int> score(guessable.size());
 
     transform(std::execution::par_unseq, guessable.begin(), guessable.end(),
-        score.begin(), [&](const char* guess) {
-            std::vector<int> cnt(word_len3);
-            for (const char* target : possible)
-                cnt[wordle(target, guess)]++;
-
-            int s = 0;
-            for (int i = 0; i < word_len3 - 1; ++i)
-                s += cnt[i] * cnt[i];
-
-            return s;
-        });
+        score.begin(), [this](const char* guess) { return eval(guess); });
     auto it =
         min_element(std::execution::par_unseq, score.begin(), score.end());
 
