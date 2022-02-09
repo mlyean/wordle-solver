@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 
+#include "dict.hpp"
+
 namespace wordle_solver {
 
 int wordle(const char* word, const char* guess);
@@ -14,8 +16,7 @@ struct Solver {
     int word_len, word_len3;
     std::vector<const char*> possible, guessable;
 
-    Solver(
-        const std::vector<const char*>& p, const std::vector<const char*>& g);
+    Solver(const dict::Dict& d);
 
     bool has_solution();
 

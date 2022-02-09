@@ -1,8 +1,9 @@
-#include <string>
 #include <vector>
 
-namespace wordle_dict {
+#include "dict.hpp"
 
-extern const std::vector<const char*> guessable, possible;
+namespace dict {
+
+extern const Dict wordle_common;
 
 } // namespace wordle_dict

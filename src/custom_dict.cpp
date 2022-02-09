@@ -1,12 +1,14 @@
 #include "custom_dict.hpp"
 
+#include <fstream>
 #include <sstream>
 
-namespace custom_dict {
+namespace dict {
 
-Dict::Dict(const std::string& p, const std::string& g, int n) : word_len(n) {
+CustomDict::CustomDict(const std::string& p, const std::string& g, int n) {
+    word_len = n;
+
     std::string word;
-
     std::fstream pfile(p, std::ios::in);
     if (!pfile.is_open()) {
         std::stringstream ss;
@@ -48,11 +50,11 @@ Dict::Dict(const std::string& p, const std::string& g, int n) : word_len(n) {
     gfile.close();
 }
 
-Dict::~Dict() {
+CustomDict::~CustomDict() {
     for (const char* a : possible)
         delete[] a;
     for (const char* a : guessable)
         delete[] a;
 }
 
-} // namespace custom_dict
+} // namespace dict

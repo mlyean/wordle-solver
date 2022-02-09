@@ -7,11 +7,10 @@
 #include "wordle_dict.hpp"
 
 using namespace std;
-using namespace wordle_solver;
 
-int loop(bool verbose, const vector<const char*>& possible,
-    const vector<const char*>& guessable) {
-    Solver solver(possible, guessable);
+int loop(bool verbose, dict::Dict d) {
+    using namespace wordle_solver;
+    Solver solver(d);
 
     for (int t = 0;; ++t) {
         if (!solver.has_solution()) {
@@ -66,12 +65,12 @@ int main(int argc, char* argv[]) {
 
     if (custom) {
         try {
-            custom_dict::Dict dict(pfile, gfile, word_len);
-            return loop(verbose, dict.possible, dict.guessable);
+            dict::CustomDict dict(pfile, gfile, word_len);
+            return loop(verbose, dict);
         } catch (string e) {
             cerr << "Exception: " << e << endl;
             return 1;
         }
     }
-    return loop(verbose, wordle_dict::possible, wordle_dict::guessable);
+    return loop(verbose, dict::wordle_common);
 }
