@@ -75,7 +75,6 @@ bool is_possible_word(const char* word, const char* guess, int result) {
 
 Solver::Solver(const dict::Dict& d) {
     possible.insert(possible.end(), d.possible.begin(), d.possible.end());
-    guessable.insert(guessable.end(), d.possible.begin(), d.possible.end());
     guessable.insert(guessable.end(), d.guessable.begin(), d.guessable.end());
 
     word_len = strlen(guessable[0]);
